@@ -1,0 +1,205 @@
+// MTMR Touch Bar — Omarchy-style live AeroSpace workspaces.
+// Left: escape + workspaces 1-10 (●N focused, N occupied, · empty); tap to jump.
+// Right: brightness, volume, battery, clock. Generated — see install.sh.
+[
+  {
+    "type": "escape",
+    "width": 56,
+    "align": "left"
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"1\" ]; then echo \"●1\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 1; then echo \"1\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "1"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"2\" ]; then echo \"●2\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 2; then echo \"2\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "2"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"3\" ]; then echo \"●3\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 3; then echo \"3\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "3"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"4\" ]; then echo \"●4\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 4; then echo \"4\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "4"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"5\" ]; then echo \"●5\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 5; then echo \"5\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "5"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"6\" ]; then echo \"●6\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 6; then echo \"6\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "6"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"7\" ]; then echo \"●7\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 7; then echo \"7\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "7"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"8\" ]; then echo \"●8\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 8; then echo \"8\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "8"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"9\" ]; then echo \"●9\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 9; then echo \"9\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "9"
+    ]
+  },
+  {
+    "type": "shellScriptTitledButton",
+    "align": "left",
+    "width": 30,
+    "bordered": true,
+    "source": {
+      "inline": "export PATH=/opt/homebrew/bin:$PATH; f=$(aerospace list-workspaces --focused); if [ \"$f\" = \"10\" ]; then echo \"●10\"; elif aerospace list-workspaces --monitor all --empty no | grep -qx 10; then echo \"10\"; else echo \"·\"; fi"
+    },
+    "refreshInterval": 1,
+    "action": "shellScript",
+    "executablePath": "/opt/homebrew/bin/aerospace",
+    "shellArguments": [
+      "workspace",
+      "10"
+    ]
+  },
+  {
+    "type": "brightnessDown",
+    "width": 32,
+    "bordered": false,
+    "align": "right"
+  },
+  {
+    "type": "brightnessUp",
+    "width": 32,
+    "bordered": false,
+    "align": "right"
+  },
+  {
+    "type": "volumeDown",
+    "width": 28,
+    "bordered": false,
+    "align": "right"
+  },
+  {
+    "type": "volumeUp",
+    "width": 28,
+    "bordered": false,
+    "align": "right"
+  },
+  {
+    "type": "battery",
+    "align": "right",
+    "bordered": false
+  },
+  {
+    "type": "timeButton",
+    "formatTemplate": "HH:mm",
+    "align": "right",
+    "bordered": false
+  }
+]

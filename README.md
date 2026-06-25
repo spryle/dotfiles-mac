@@ -13,6 +13,7 @@ getting as close to the Hyprland/Linux ricing experience as macOS allows.
 | Alacritty / terminal | **WezTerm** | `wezterm/` |
 | walker / launcher | **Raycast** (`Option+Space`, set in-app) | — |
 | wallpaper | `legacy-mountains.png` (set by install) | `wallpapers/` |
+| (Touch Bar) | **MTMR** — live tappable workspaces | `mtmr/` |
 | starship prompt | **starship** | `starship/` |
 
 Theme: **Catppuccin Mocha**. Font: **JetBrainsMono Nerd Font**.
@@ -100,6 +101,13 @@ in `aerospace.toml` to change this.
   *Get Network Details → Network Name of Wi-Fi*, run it once to grant the location
   prompt, and `wifi.sh` will pick it up (it calls `shortcuts run "CurrentWiFi"`).
   Without the shortcut it falls back to the IP.
+- **Touch Bar (MTMR):** on Touch Bar MacBooks, MTMR replaces the app-specific
+  bar with escape + tappable workspaces 1–10 (`●N` focused, `N` occupied, `·`
+  empty; tap to jump) on the left and brightness/volume/battery/clock on the
+  right. Config: `mtmr/Library/Application Support/MTMR/items.json` (stowed with
+  `--no-folding`). MTMR is Intel-only (needs Rosetta 2) and needs Accessibility
+  permission. The active highlight is a glyph, not a colour pill — MTMR can't
+  recolour buttons live. Edit the workspace count by adding/removing buttons.
 - **macOS defaults:** `install.sh` also tunes key repeat (+ disables
   press-and-hold so keys repeat for vim), makes the Dock reveal instantly,
   redirects screenshots to `~/Pictures/Screenshots` (the Desktop is hidden), and

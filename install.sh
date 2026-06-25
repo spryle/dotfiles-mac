@@ -146,6 +146,26 @@ if [ -d "/Applications/Raycast.app" ]; then
     open -a Raycast 2>/dev/null || true
 fi
 
+# --- Touch Bar: MTMR live workspaces -----------------------------------------
+# MTMR puts tappable AeroSpace workspaces on the Touch Bar (●N focused, N
+# occupied, · empty). It's an Intel-only app, so it needs Rosetta 2.
+if ! /usr/bin/pgrep -q oahd && [ ! -d /Library/Apple/usr/libexec/oah ]; then
+    log "installing Rosetta 2 (required by MTMR)"
+    softwareupdate --install-rosetta --agree-to-license 2>/dev/null \
+        || log "Rosetta install failed — run: softwareupdate --install-rosetta"
+fi
+if brew list --cask mtmr >/dev/null 2>&1; then
+    log "cask mtmr already installed"
+else
+    log "installing cask mtmr"
+    brew install --cask mtmr
+fi
+# --no-folding so only items.json is symlinked (MTMR keeps its own real dir and
+# can't write state back into the repo).
+log "stowing MTMR Touch Bar config"
+stow --target="$HOME" --no-folding --restow mtmr
+open -a MTMR 2>/dev/null || true
+
 # --- Services ----------------------------------------------------------------
 log "starting sketchybar service"
 brew services restart sketchybar >/dev/null 2>&1 || brew services start sketchybar
@@ -158,9 +178,9 @@ cat <<'EOF'
 
 [install] Done. Remaining manual steps (macOS won't let scripts do these):
 
-  1. Grant AeroSpace Accessibility permission:
-       System Settings -> Privacy & Security -> Accessibility -> enable AeroSpace
-     (AeroSpace's window manager won't run until this is granted.)
+  1. Grant Accessibility permission to AeroSpace AND MTMR:
+       System Settings -> Privacy & Security -> Accessibility -> enable both
+     (AeroSpace's WM and MTMR's Touch Bar takeover won't run until granted.)
 
   2. (Optional) Raycast Catppuccin Mocha theme — needs Raycast Pro to activate:
        https://themes.ray.so?version=1&name=Catppuccin%20Mocha&colors=%231e1e2e,%231e1e2e,%23cdd6f4,%236c7086,%237f849c,%23f38ba8,%23fab387,%23f9e2af,%23a6e3a1,%2389b4fa,%23b4befe,%23cba6f7&appearance=dark
