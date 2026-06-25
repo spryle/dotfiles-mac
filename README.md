@@ -92,8 +92,14 @@ in `aerospace.toml` to change this.
 - **Bar modules:** left = workspaces · focused app · resize-mode pill · now
   playing; centre = clock; right = cpu · volume · battery · wifi. The `media`
   item only appears while Spotify/Music is playing (AppleScript, no extra deps);
-  `wifi` shows SSID or falls back to the IP when macOS redacts the SSID. Add
-  Bluetooth by installing `blueutil` and adding a plugin on the same pattern.
+  `wifi` shows the SSID, or the IP as a fallback. Add Bluetooth by installing
+  `blueutil` and adding a plugin on the same pattern.
+- **Wi-Fi shows IP instead of SSID:** modern macOS redacts the SSID from every
+  CLI tool unless the caller has Location Services entitlement (a daemon-spawned
+  plugin can't). Fix: make a Shortcut named **`CurrentWiFi`** whose only action is
+  *Get Network Details → Network Name of Wi-Fi*, run it once to grant the location
+  prompt, and `wifi.sh` will pick it up (it calls `shortcuts run "CurrentWiFi"`).
+  Without the shortcut it falls back to the IP.
 - **macOS defaults:** `install.sh` also tunes key repeat (+ disables
   press-and-hold so keys repeat for vim), makes the Dock reveal instantly,
   redirects screenshots to `~/Pictures/Screenshots` (the Desktop is hidden), and
