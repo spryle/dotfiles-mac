@@ -50,10 +50,12 @@ Modifier is **Alt (Option)** — Cmd collides with macOS app shortcuts.
 | Keys | Action |
 |---|---|
 | `Alt+Enter` | WezTerm |
+| `Alt+b` / `Alt+n` / `Alt+c` / `Alt+m` | Launch/focus Chrome / VS Code / Slack / Music |
 | `Alt+h/j/k/l` *or* `Alt+←/↓/↑/→` | Focus left/down/up/right |
 | `Alt+Shift+h/j/k/l` *or* `Alt+Shift+←/↓/↑/→` | Move window |
 | `Alt+1`…`0` | Switch to workspace 1–10 |
 | `Alt+Shift+1`…`0` | Move window to workspace |
+| `Ctrl+Alt+←/→` *or* `Ctrl+Alt+h/l` | Previous / next workspace (wraps) |
 | `Alt+f` | Fullscreen |
 | `Alt+e` | Toggle split orientation |
 | `Alt+Shift+Space` | Toggle float |
@@ -61,6 +63,10 @@ Modifier is **Alt (Option)** — Cmd collides with macOS app shortcuts.
 | `Alt+r` | Resize mode (h/j/k/l, esc to exit) |
 | `Alt+Shift+c` | Reload AeroSpace config |
 | `Alt+Tab` | Last workspace |
+
+Apps auto-route to workspaces on launch (Chrome→1, VS Code→2, Slack→3,
+Notion→4, Music→5); Zoom floats. Edit/remove the `[[on-window-detected]]` blocks
+in `aerospace.toml` to change this.
 
 ## Tuning
 
@@ -83,3 +89,13 @@ Modifier is **Alt (Option)** — Cmd collides with macOS app shortcuts.
   reverts, set it in Raycast → Settings → General → Raycast Hotkey.
 - **Wallpaper:** `wallpapers/.config/wallpapers/legacy-mountains.png`. Re-apply
   with the `osascript` line in the manual-install block above.
+- **Bar modules:** left = workspaces · focused app · resize-mode pill · now
+  playing; centre = clock; right = cpu · volume · battery · wifi. The `media`
+  item only appears while Spotify/Music is playing (AppleScript, no extra deps);
+  `wifi` shows SSID or falls back to the IP when macOS redacts the SSID. Add
+  Bluetooth by installing `blueutil` and adding a plugin on the same pattern.
+- **macOS defaults:** `install.sh` also tunes key repeat (+ disables
+  press-and-hold so keys repeat for vim), makes the Dock reveal instantly,
+  redirects screenshots to `~/Pictures/Screenshots` (the Desktop is hidden), and
+  applies Finder tweaks + Dark mode. Key-repeat changes fully apply to apps
+  launched after the next login.

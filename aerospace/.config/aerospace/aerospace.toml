@@ -46,6 +46,12 @@ outer.top        = 45   # clears the 37px SketchyBar (menu bar is auto-hidden)
 # Terminal
 alt-enter = 'exec-and-forget open -na /Applications/WezTerm.app'
 
+# App launchers — launch, or focus if already running (like Omarchy SUPER+B/N/…).
+alt-b = 'exec-and-forget open -a "Google Chrome"'        # Browser
+alt-n = 'exec-and-forget open -a "Visual Studio Code"'   # editor (N = "Neovim" slot)
+alt-c = 'exec-and-forget open -a "Slack"'                # Comms
+alt-m = 'exec-and-forget open -a "Music"'                # Music
+
 # Focus (vim hjkl + arrow keys — both do the same thing)
 alt-h = 'focus left'
 alt-j = 'focus down'
@@ -113,7 +119,7 @@ alt-shift-tab = 'move-node-to-monitor --wrap-around next'
 
 # Reload config + enter resize mode
 alt-shift-c = 'reload-config'
-alt-r = 'mode resize'
+alt-r = ['mode resize', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_mode_change MODE=resize']
 
 # --- Resize sub-mode (alt-r to enter, esc/enter to leave) ---------------------
 [mode.resize.binding]
@@ -127,8 +133,8 @@ up    = 'resize height -50'
 right = 'resize width +50'
 minus = 'resize smart -50'
 equal = 'resize smart +50'
-enter = 'mode main'
-esc = 'mode main'
+enter = ['mode main', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_mode_change MODE=main']
+esc = ['mode main', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_mode_change MODE=main']
 
 # --- Window rules -------------------------------------------------------------
 # Float macOS dialogs/utilities that don't tile well.
@@ -140,3 +146,31 @@ run = 'layout floating'
 if.app-id = 'com.apple.finder'
 if.window-title-regex-substring = 'Copy|Move|Info|Delete'
 run = 'layout floating'
+
+# Zoom windows (call window + dialogs) tile badly — keep them floating.
+[[on-window-detected]]
+if.app-id = 'us.zoom.xos'
+run = 'layout floating'
+
+# --- App → workspace routing --------------------------------------------------
+# Send apps to a fixed workspace on launch (Omarchy-style). Delete a block to
+# stop pinning that app. Find an app's id with:  aerospace list-apps
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'        # Browser → 1
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'     # Editor → 2
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap' # Slack → 3
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'notion.id'                # Notion → 4
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Music'          # Music → 5
+run = 'move-node-to-workspace 5'

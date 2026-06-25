@@ -91,6 +91,38 @@ log "hiding desktop icons"
 defaults write com.apple.finder CreateDesktop false
 killall Finder 2>/dev/null || true
 
+# --- Input & UX defaults -----------------------------------------------------
+# Keyboard: fast key repeat and, crucially, ApplePressAndHoldEnabled=false so
+# holding a key REPEATS it (vim/navigation) instead of popping the accent menu.
+# (KeyRepeat/InitialKeyRepeat fully apply to apps launched after next login.)
+log "tuning keyboard repeat"
+defaults write -g KeyRepeat -int 2
+defaults write -g InitialKeyRepeat -int 15
+defaults write -g ApplePressAndHoldEnabled -bool false
+
+# Dock: reveal instantly (it's auto-hidden for the clean look).
+log "speeding up the Dock"
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock autohide-time-modifier -float 0.4
+killall Dock 2>/dev/null || true
+
+# Screenshots: save to ~/Pictures/Screenshots instead of the (now hidden) Desktop.
+log "redirecting screenshots to ~/Pictures/Screenshots"
+mkdir -p "$HOME/Pictures/Screenshots"
+defaults write com.apple.screencapture location "$HOME/Pictures/Screenshots"
+killall SystemUIServer 2>/dev/null || true
+
+# Finder: path/status bars, list view, search the current folder, show
+# extensions and dotfiles (dev-friendly).
+log "applying Finder tweaks"
+defaults write com.apple.finder ShowPathbar -bool true
+defaults write com.apple.finder ShowStatusBar -bool true
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+defaults write -g AppleShowAllExtensions -bool true
+defaults write com.apple.finder AppleShowAllFiles -bool true
+killall Finder 2>/dev/null || true
+
 # --- Wallpaper ---------------------------------------------------------------
 # Set the Omarchy wallpaper across every desktop/space. Points at the stowed
 # copy in ~/.config so the path is stable regardless of where this repo lives.
