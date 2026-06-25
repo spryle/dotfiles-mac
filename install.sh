@@ -169,6 +169,9 @@ if pgrep -x TouchBarServer >/dev/null 2>&1; then
     defaults write com.apple.touchbar.agent PresentationModeFnModes -dict-add "appWithControlStrip" "fullControlStrip"
     # Hide the app-region "X" (collapse) button so the workspaces can't be dismissed.
     defaults write com.hegenberg.BetterTouchTool BTTHideTouchBarXButton -bool true
+    # Control Strip on the right: keep brightness/volume/mute, drop Siri.
+    defaults write com.apple.controlstrip MiniCustomized -array \
+        "com.apple.system.brightness" "com.apple.system.volume" "com.apple.system.mute"
     killall TouchBarServer 2>/dev/null || true
     killall ControlStrip 2>/dev/null || true
 
