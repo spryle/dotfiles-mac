@@ -152,25 +152,11 @@ run = 'layout floating'
 if.app-id = 'us.zoom.xos'
 run = 'layout floating'
 
-# --- App → workspace routing --------------------------------------------------
-# Send apps to a fixed workspace on launch (Omarchy-style). Delete a block to
-# stop pinning that app. Find an app's id with:  aerospace list-apps
-[[on-window-detected]]
-if.app-id = 'com.google.Chrome'        # Browser → 1
-run = 'move-node-to-workspace 1'
-
-[[on-window-detected]]
-if.app-id = 'com.microsoft.VSCode'     # Editor → 2
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap' # Slack → 3
-run = 'move-node-to-workspace 3'
-
-[[on-window-detected]]
-if.app-id = 'notion.id'                # Notion → 4
-run = 'move-node-to-workspace 4'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.Music'          # Music → 5
-run = 'move-node-to-workspace 5'
+# NOTE: app→workspace routing (move-node-to-workspace on detect) was removed.
+# AeroSpace re-fires on-window-detected every time an app recreates its window
+# (e.g. an Electron app reloading, or VS Code's "Reload Window"), which yanked
+# the focused window to its assigned workspace. To pin a *native* app that never
+# recreates its window, add:
+#   [[on-window-detected]]
+#   if.app-id = '<id>'              # find with: aerospace list-apps
+#   run = 'move-node-to-workspace N'
