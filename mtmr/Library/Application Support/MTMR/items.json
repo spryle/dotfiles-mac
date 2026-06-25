@@ -1,6 +1,3 @@
-// MTMR Touch Bar — Omarchy-style live AeroSpace workspaces.
-// Left: escape + workspaces 1-10 (●N focused, N occupied, · empty); tap to jump.
-// Right: brightness, volume, battery, clock. Generated — see install.sh.
 [
   {
     "type": "escape",
