@@ -157,9 +157,14 @@ fi
 if brew list --cask mtmr >/dev/null 2>&1; then
     log "cask mtmr already installed"
 else
+    # --no-quarantine: MTMR is validly Developer-ID signed but the download
+    # quarantine flag still triggers a "can't verify" dialog that blocks first
+    # launch. Skipping quarantine avoids it.
     log "installing cask mtmr"
-    brew install --cask mtmr
+    brew install --cask --no-quarantine mtmr
 fi
+# Safety net if it was installed (and quarantined) by some other path.
+xattr -dr com.apple.quarantine "/Applications/MTMR.app" 2>/dev/null || true
 # --no-folding so only items.json is symlinked (MTMR keeps its own real dir and
 # can't write state back into the repo).
 log "stowing MTMR Touch Bar config"
