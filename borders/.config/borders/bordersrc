@@ -1,0 +1,14 @@
+#!/bin/bash
+# JankyBorders — active-window border, Catppuccin Mocha accent.
+# Docs: https://github.com/FelixKratz/JankyBorders
+# Reloads automatically when this file changes (it's the daemon's config).
+
+options=(
+  style=round
+  width=4.0
+  hidpi=on
+  active_color=0xffcba6f7    # mauve  — focused window
+  inactive_color=0xff45475a  # surface1 — unfocused windows
+)
+
+borders "${options[@]}"

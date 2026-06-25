@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# SketchyBar — Omarchy/Catppuccin Mocha layout for AeroSpace.
+# Docs: https://felixkratz.github.io/SketchyBar/
+
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+export PATH="/opt/homebrew/bin:$PATH"
+
+# Palette + font live in colors.sh so the plugins can source the same values
+# (see the note in that file for why this can't just be `export`ed here).
+source "$CONFIG_DIR/colors.sh"
+
+# ---- Bar --------------------------------------------------------------------
+sketchybar --bar \
+  height=37 \
+  position=top \
+  sticky=on \
+  padding_left=8 \
+  padding_right=8 \
+  color=$BG \
+  blur_radius=30 \
+  shadow=off
+
+# ---- Defaults ---------------------------------------------------------------
+default=(
+  padding_left=4
+  padding_right=4
+  icon.font="$FONT:Bold:15.0"
+  icon.color=$FG
+  label.font="$FONT:Semibold:13.0"
+  label.color=$FG
+  background.corner_radius=6
+  background.height=26
+  icon.padding_left=8
+  icon.padding_right=4
+  label.padding_left=4
+  label.padding_right=8
+)
+sketchybar --default "${default[@]}"
+
+# ---- Left: AeroSpace workspaces ---------------------------------------------
+sketchybar --add event aerospace_workspace_change
+
+for sid in $(aerospace list-workspaces --all); do
+  sketchybar --add item space.$sid left \
+    --subscribe space.$sid aerospace_workspace_change \
+    --set space.$sid \
+      icon="$sid" \
+      icon.padding_left=10 \
+      icon.padding_right=10 \
+      label.drawing=off \
+      background.color=$ITEM_BG \
+      background.drawing=off \
+      update_freq=2 \
+      click_script="aerospace workspace $sid" \
+      script="$PLUGIN_DIR/aerospace.sh $sid"
+done
+
+# ---- Left: focused app ------------------------------------------------------
+sketchybar --add item front_app left \
+  --set front_app \
+    icon.drawing=off \
+    label.font="$FONT:Bold:13.0" \
+    label.color=$ACCENT \
+    script="$PLUGIN_DIR/front_app.sh" \
+  --subscribe front_app front_app_switched
+
+# ---- Center: clock ----------------------------------------------------------
+sketchybar --add item clock center \
+  --set clock \
+    icon="" \
+    icon.color=$BLUE \
+    update_freq=15 \
+    script="$PLUGIN_DIR/clock.sh"
+
+# ---- Right: battery, volume, cpu --------------------------------------------
+sketchybar --add item battery right \
+  --set battery \
+    update_freq=60 \
+    script="$PLUGIN_DIR/battery.sh" \
+  --subscribe battery system_woke power_source_change
+
+sketchybar --add item volume right \
+  --set volume \
+    script="$PLUGIN_DIR/volume.sh" \
+  --subscribe volume volume_change
+
+sketchybar --add item cpu right \
+  --set cpu \
+    icon="󰍛" \
+    icon.color=$GREEN \
+    update_freq=5 \
+    script="$PLUGIN_DIR/cpu.sh"
+
+# ---- Finalise ---------------------------------------------------------------
+sketchybar --update

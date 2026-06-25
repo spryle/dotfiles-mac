@@ -1,0 +1,142 @@
+# AeroSpace config — Omarchy/i3-flavoured tiling for macOS
+# Docs: https://nikitabobko.github.io/AeroSpace/guide
+#
+# Modifier note: on Linux you use SUPER. On macOS plain Cmd collides with almost
+# every app shortcut (Cmd+1, Cmd+W, ...), so the WM modifier here is ALT (Option).
+# To switch to Cmd: find/replace 'alt-' -> 'cmd-' below (expect conflicts).
+
+# Start AeroSpace at login (registers a macOS login item).
+start-at-login = true
+
+# Normalizations off → behaves closer to i3/Hyprland (no auto-flattening).
+enable-normalization-flatten-containers = false
+enable-normalization-opposite-orientation-for-nested-containers = false
+
+# Default to binary space partitioning, like yabai/Hyprland bsp.
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+# Mouse follows the focused window when focus moves between monitors.
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# --- Startup ------------------------------------------------------------------
+# Launch the active-window borders daemon. sketchybar is managed by its own
+# brew service (`brew services start sketchybar`) so it is not started here.
+after-startup-command = ['exec-and-forget /opt/homebrew/bin/borders']
+
+# Tell sketchybar whenever the focused workspace changes so its workspace
+# indicator can re-highlight.
+exec-on-workspace-change = [
+  '/bin/bash', '-c',
+  '/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
+]
+
+# --- Gaps (matches Omarchy's tight inner gaps) --------------------------------
+# Bump outer.top if windows hide under sketchybar, or shrink if there's a gap.
+[gaps]
+inner.horizontal = 8
+inner.vertical   = 8
+outer.left       = 8
+outer.right      = 8
+outer.bottom     = 8
+outer.top        = 45   # clears the 37px SketchyBar (menu bar is auto-hidden)
+
+# --- Main keybindings ---------------------------------------------------------
+[mode.main.binding]
+# Terminal
+alt-enter = 'exec-and-forget open -na /Applications/WezTerm.app'
+
+# Focus (vim hjkl + arrow keys — both do the same thing)
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+alt-left  = 'focus left'
+alt-down  = 'focus down'
+alt-up    = 'focus up'
+alt-right = 'focus right'
+
+# Move window (vim hjkl + arrow keys)
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+alt-shift-left  = 'move left'
+alt-shift-down  = 'move down'
+alt-shift-up    = 'move up'
+alt-shift-right = 'move right'
+
+# Layout
+alt-f = 'fullscreen'
+alt-e = 'layout tiles horizontal vertical'   # toggle split orientation (i3 "toggle split")
+alt-s = 'layout v_accordion'                  # stacking
+alt-shift-space = 'layout floating tiling'    # float toggle
+alt-minus = 'balance-sizes'                   # equalise window sizes
+
+# Close focused window (matches Omarchy SUPER+W)
+alt-w = 'close'
+
+# Workspaces 1-10
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+alt-0 = 'workspace 10'
+alt-tab = 'workspace-back-and-forth'
+
+# Cycle to the previous/next workspace (wraps around at the ends).
+ctrl-alt-h     = 'workspace --wrap-around prev'
+ctrl-alt-l     = 'workspace --wrap-around next'
+ctrl-alt-left  = 'workspace --wrap-around prev'
+ctrl-alt-right = 'workspace --wrap-around next'
+
+# Move focused window to workspace. Each also pokes sketchybar so the occupied/
+# empty workspace dots update instantly instead of on the next poll.
+alt-shift-1 = ['move-node-to-workspace 1', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-2 = ['move-node-to-workspace 2', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-3 = ['move-node-to-workspace 3', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-4 = ['move-node-to-workspace 4', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-5 = ['move-node-to-workspace 5', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-6 = ['move-node-to-workspace 6', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-7 = ['move-node-to-workspace 7', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-8 = ['move-node-to-workspace 8', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-9 = ['move-node-to-workspace 9', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+alt-shift-0 = ['move-node-to-workspace 10', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+
+# Multi-monitor: move focused window to the next monitor and follow it
+alt-shift-tab = 'move-node-to-monitor --wrap-around next'
+
+# Reload config + enter resize mode
+alt-shift-c = 'reload-config'
+alt-r = 'mode resize'
+
+# --- Resize sub-mode (alt-r to enter, esc/enter to leave) ---------------------
+[mode.resize.binding]
+h = 'resize width -50'
+j = 'resize height +50'
+k = 'resize height -50'
+l = 'resize width +50'
+left  = 'resize width -50'
+down  = 'resize height +50'
+up    = 'resize height -50'
+right = 'resize width +50'
+minus = 'resize smart -50'
+equal = 'resize smart +50'
+enter = 'mode main'
+esc = 'mode main'
+
+# --- Window rules -------------------------------------------------------------
+# Float macOS dialogs/utilities that don't tile well.
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+if.window-title-regex-substring = 'Copy|Move|Info|Delete'
+run = 'layout floating'
