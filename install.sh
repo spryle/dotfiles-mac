@@ -146,30 +146,47 @@ if [ -d "/Applications/Raycast.app" ]; then
     open -a Raycast 2>/dev/null || true
 fi
 
-# --- Touch Bar: MTMR live workspaces -----------------------------------------
-# MTMR puts tappable AeroSpace workspaces on the Touch Bar (●N focused, N
-# occupied, · empty). It's an Intel-only app, so it needs Rosetta 2.
-if ! /usr/bin/pgrep -q oahd && [ ! -d /Library/Apple/usr/libexec/oah ]; then
-    log "installing Rosetta 2 (required by MTMR)"
-    softwareupdate --install-rosetta --agree-to-license 2>/dev/null \
-        || log "Rosetta install failed — run: softwareupdate --install-rosetta"
-fi
-if brew list --cask mtmr >/dev/null 2>&1; then
-    log "cask mtmr already installed"
+# --- Touch Bar: BetterTouchTool live workspaces (Touch Bar Macs only) ---------
+# On Touch Bar MacBooks, BetterTouchTool shows tappable AeroSpace workspace pills
+# (active = mauve, tap = jump) on the left, with the system Control Strip
+# (brightness/volume) on the right. BTT is native Apple Silicon and maintained.
+# The widgets aren't a stowable file — they live in BTT's own DB — so
+# btt/touchbar-workspaces.py drives BTT's AppleScript API to build them
+# (idempotent). Skipped entirely on Macs without a Touch Bar.
+if pgrep -x TouchBarServer >/dev/null 2>&1; then
+    if [ -d "/Applications/BetterTouchTool.app" ] || brew list --cask bettertouchtool >/dev/null 2>&1; then
+        log "cask bettertouchtool already installed"
+    else
+        log "installing cask bettertouchtool"
+        brew install --cask bettertouchtool
+    fi
+
+    # "appWithControlStrip": BTT's recommended mode — app region (our workspaces)
+    # on the left, the real macOS Control Strip on the right. Plain "app" mode
+    # hides the Control Strip and adds a takeover close button.
+    log "setting Touch Bar to appWithControlStrip (for BTT)"
+    defaults write com.apple.touchbar.agent PresentationModeGlobal -string "appWithControlStrip"
+    defaults write com.apple.touchbar.agent PresentationModeFnModes -dict-add "appWithControlStrip" "fullControlStrip"
+    # Hide the app-region "X" (collapse) button so the workspaces can't be dismissed.
+    defaults write com.hegenberg.BetterTouchTool BTTHideTouchBarXButton -bool true
+    killall TouchBarServer 2>/dev/null || true
+    killall ControlStrip 2>/dev/null || true
+
+    open -a BetterTouchTool 2>/dev/null || true
+    sleep 3   # let BTT's AppleScript API come up before we push widgets
+    log "building BTT Touch Bar workspace widgets"
+    python3 "$DOTFILES_DIR/btt/touchbar-workspaces.py" \
+        || log "BTT widget setup failed — run it manually with BTT running"
+
+    # A full widget rebuild empties the bar briefly, which makes BTT auto-hide it
+    # (BTTTouchBarVisible→0). Re-assert visibility via a clean restart.
+    osascript -e 'tell application "BetterTouchTool" to quit' 2>/dev/null || true
+    sleep 1; pkill -f BetterTouchTool 2>/dev/null || true; sleep 1
+    defaults write com.hegenberg.BetterTouchTool BTTTouchBarVisible -bool true
+    open -a BetterTouchTool 2>/dev/null || true
 else
-    # --no-quarantine: MTMR is validly Developer-ID signed but the download
-    # quarantine flag still triggers a "can't verify" dialog that blocks first
-    # launch. Skipping quarantine avoids it.
-    log "installing cask mtmr"
-    brew install --cask --no-quarantine mtmr
+    log "no Touch Bar detected — skipping BetterTouchTool setup"
 fi
-# Safety net if it was installed (and quarantined) by some other path.
-xattr -dr com.apple.quarantine "/Applications/MTMR.app" 2>/dev/null || true
-# --no-folding so only items.json is symlinked (MTMR keeps its own real dir and
-# can't write state back into the repo).
-log "stowing MTMR Touch Bar config"
-stow --target="$HOME" --no-folding --restow mtmr
-open -a MTMR 2>/dev/null || true
 
 # --- Services ----------------------------------------------------------------
 log "starting sketchybar service"
@@ -183,13 +200,17 @@ cat <<'EOF'
 
 [install] Done. Remaining manual steps (macOS won't let scripts do these):
 
-  1. Grant Accessibility permission to AeroSpace AND MTMR:
-       System Settings -> Privacy & Security -> Accessibility -> enable both
-     (AeroSpace's WM and MTMR's Touch Bar takeover won't run until granted.)
+  1. Grant Accessibility permission to AeroSpace (and BetterTouchTool on Touch
+     Bar Macs):
+       System Settings -> Privacy & Security -> Accessibility -> enable them
+     (AeroSpace's WM and BTT's Touch Bar won't run until granted.)
 
-  2. (Optional) Raycast Catppuccin Mocha theme — needs Raycast Pro to activate:
+  2. (Touch Bar Macs) Activate your BetterTouchTool license (double-click the
+     .bttlicense file or use the activation link) — it runs in trial otherwise.
+
+  3. (Optional) Raycast Catppuccin Mocha theme — needs Raycast Pro to activate:
        https://themes.ray.so?version=1&name=Catppuccin%20Mocha&colors=%231e1e2e,%231e1e2e,%23cdd6f4,%236c7086,%237f849c,%23f38ba8,%23fab387,%23f9e2af,%23a6e3a1,%2389b4fa,%23b4befe,%23cba6f7&appearance=dark
 
-  3. Open a new terminal tab to pick up the starship prompt.
+  4. Open a new terminal tab to pick up the starship prompt.
 
 EOF
