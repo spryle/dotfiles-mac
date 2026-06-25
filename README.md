@@ -90,6 +90,12 @@ in `aerospace.toml` to change this.
   reverts, set it in Raycast → Settings → General → Raycast Hotkey.
 - **Wallpaper:** `wallpapers/.config/wallpapers/legacy-mountains.png`. Re-apply
   with the `osascript` line in the manual-install block above.
+- **Screen saver:** install mirrors the wallpaper into the screen saver by
+  copying the `Desktop` image config into the `Idle` slots of macOS's wallpaper
+  store (`~/Library/Application Support/com.apple.wallpaper/Store/Index.plist`),
+  then `killall WallpaperAgent idleassetsd`. No still-image screen saver is
+  exposed via `defaults`/`osascript` on Sonoma+, hence the store edit. A `.bak`
+  is left next to the store; revert by restoring it and restarting the agent.
 - **Bar modules:** left = workspaces · focused app · resize-mode pill · now
   playing; centre = clock; right = cpu · volume · battery · wifi. The `media`
   item only appears while Spotify/Music is playing (AppleScript, no extra deps);

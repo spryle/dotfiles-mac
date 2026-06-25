@@ -134,6 +134,52 @@ if [ -f "$WALLPAPER" ]; then
         || log "could not set wallpaper automatically — set it manually in System Settings > Wallpaper"
 fi
 
+# --- Screen saver = wallpaper ------------------------------------------------
+# macOS (Sonoma+) manages the desktop picture and the screen saver in one store:
+# ~/Library/Application Support/com.apple.wallpaper/Store/Index.plist. Each scope
+# has a "Desktop" block (the wallpaper) and an "Idle" block (the screen saver).
+# There's no defaults/osascript knob for a still-image screen saver anymore, so
+# we copy the Desktop image config into every Idle slot, then restart the agent.
+# Runs after the wallpaper step above so the Desktop block already references it.
+SAVER_STORE="$HOME/Library/Application Support/com.apple.wallpaper/Store/Index.plist"
+if [ -f "$SAVER_STORE" ]; then
+    log "setting screen saver to the wallpaper"
+    cp "$SAVER_STORE" "$SAVER_STORE.bak" 2>/dev/null || true
+    python3 - "$SAVER_STORE" <<'PY' || log "could not set screen saver — set it manually in System Settings > Screen Saver"
+import plistlib, copy, sys
+path = sys.argv[1]
+with open(path, 'rb') as f:
+    root = plistlib.load(f)
+# Find a Desktop.Content template (the wallpaper image config) anywhere in the tree.
+template = None
+def find(node):
+    global template
+    if isinstance(node, dict):
+        d = node.get('Desktop')
+        if isinstance(d, dict) and 'Content' in d:
+            template = d['Content']
+        for v in node.values(): find(v)
+    elif isinstance(node, list):
+        for v in node: find(v)
+find(root)
+if template is None:
+    sys.exit("no wallpaper image set")
+# Mirror it into every Idle (screen saver) slot.
+def apply(node):
+    if isinstance(node, dict):
+        idle = node.get('Idle')
+        if isinstance(idle, dict) and 'Content' in idle:
+            idle['Content'] = copy.deepcopy(template)
+        for v in node.values(): apply(v)
+    elif isinstance(node, list):
+        for v in node: apply(v)
+apply(root)
+with open(path, 'wb') as f:
+    plistlib.dump(root, f, fmt=plistlib.FMT_BINARY)
+PY
+    killall WallpaperAgent idleassetsd 2>/dev/null || true
+fi
+
 # --- Raycast hotkey ----------------------------------------------------------
 # Set Raycast's global hotkey to Option+Space (keycode 49). Raycast writes this
 # key back on quit, so set it while it's not running, then it sticks. Only do
