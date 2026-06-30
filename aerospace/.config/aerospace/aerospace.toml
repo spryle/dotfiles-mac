@@ -20,9 +20,19 @@ default-root-container-orientation = 'auto'
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 # --- Startup ------------------------------------------------------------------
-# Launch the active-window borders daemon. sketchybar is managed by its own
-# brew service (`brew services start sketchybar`) so it is not started here.
-after-startup-command = ['exec-and-forget /opt/homebrew/bin/borders']
+# Launch the active-window borders daemon, then auto-start the apps that have a
+# home workspace (see the on-window-detected rules at the bottom). They're routed
+# whenever their window appears, so launch order here doesn't matter. sketchybar
+# is managed by its own brew service (`brew services start sketchybar`).
+# NOTE: after-startup-command runs only when AeroSpace itself starts (login), not
+# on reload-config, so alt-shift-c won't relaunch these.
+after-startup-command = [
+  'exec-and-forget /opt/homebrew/bin/borders',
+  'exec-and-forget open -a WezTerm',
+  'exec-and-forget open -a "Google Chrome"',
+  'exec-and-forget open -a Slack',
+  'exec-and-forget open -a Claude',
+]
 
 # Tell sketchybar whenever the focused workspace changes so its workspace
 # indicator can re-highlight.
@@ -180,11 +190,30 @@ run = 'layout floating'
 if.app-id = 'us.zoom.xos'
 run = 'layout floating'
 
-# NOTE: app→workspace routing (move-node-to-workspace on detect) was removed.
-# AeroSpace re-fires on-window-detected every time an app recreates its window
-# (e.g. an Electron app reloading, or VS Code's "Reload Window"), which yanked
-# the focused window to its assigned workspace. To pin a *native* app that never
-# recreates its window, add:
-#   [[on-window-detected]]
-#   if.app-id = '<id>'              # find with: aerospace list-apps
-#   run = 'move-node-to-workspace N'
+# --- App → workspace routing --------------------------------------------------
+# Pin apps to a home workspace. AeroSpace re-fires on-window-detected every time
+# an app recreates its window, so the window snaps back to its assigned workspace
+# on reload. That bit us with VS Code's "Reload Window" (hence it's not routed
+# here), but the apps below don't recreate their windows in normal use, so the
+# routing is effectively invisible while still placing them on launch/startup.
+# These are also auto-started in after-startup-command above. Find ids with:
+#   aerospace list-apps
+[[on-window-detected]]
+if.app-id = 'com.github.wez.wezterm'        # WezTerm
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.anthropic.claudefordesktop'  # Claude
+run = 'move-node-to-workspace 8'
+
+[[on-window-detected]]
+if.app-id = 'com.docker.docker'             # Docker Desktop
+run = 'move-node-to-workspace 6'
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'     # Slack
+run = 'move-node-to-workspace 9'
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'             # Google Chrome
+run = 'move-node-to-workspace 10'
