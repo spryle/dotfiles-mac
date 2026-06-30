@@ -95,6 +95,20 @@ alt-9 = 'workspace 9'
 alt-0 = 'workspace 10'
 alt-tab = 'workspace-back-and-forth'
 
+# Numpad: bare keypad keys jump to a workspace (one-handed, no modifier). This
+# repurposes the numpad so it no longer types digits — Shift+numpad moves the
+# focused window there instead (see below). keypad0 -> workspace 10.
+keypad1 = 'workspace 1'
+keypad2 = 'workspace 2'
+keypad3 = 'workspace 3'
+keypad4 = 'workspace 4'
+keypad5 = 'workspace 5'
+keypad6 = 'workspace 6'
+keypad7 = 'workspace 7'
+keypad8 = 'workspace 8'
+keypad9 = 'workspace 9'
+keypad0 = 'workspace 10'
+
 # Cycle to the previous/next workspace (wraps around at the ends).
 ctrl-alt-h     = 'workspace --wrap-around prev'
 ctrl-alt-l     = 'workspace --wrap-around next'
@@ -113,6 +127,20 @@ alt-shift-7 = ['move-node-to-workspace 7', 'exec-and-forget /opt/homebrew/bin/sk
 alt-shift-8 = ['move-node-to-workspace 8', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
 alt-shift-9 = ['move-node-to-workspace 9', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
 alt-shift-0 = ['move-node-to-workspace 10', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+
+# Numpad: Shift+keypad moves the focused window to a workspace (mirrors the
+# alt-shift-N binds above, but with Shift alone since Alt isn't used on the
+# numpad). shift-keypad0 -> workspace 10. Each also pokes sketchybar.
+shift-keypad1 = ['move-node-to-workspace 1', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad2 = ['move-node-to-workspace 2', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad3 = ['move-node-to-workspace 3', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad4 = ['move-node-to-workspace 4', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad5 = ['move-node-to-workspace 5', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad6 = ['move-node-to-workspace 6', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad7 = ['move-node-to-workspace 7', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad8 = ['move-node-to-workspace 8', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad9 = ['move-node-to-workspace 9', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
+shift-keypad0 = ['move-node-to-workspace 10', 'exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change']
 
 # Multi-monitor: move focused window to the next monitor and follow it
 alt-shift-tab = 'move-node-to-monitor --wrap-around next'
