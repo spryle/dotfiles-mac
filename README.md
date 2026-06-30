@@ -14,6 +14,9 @@ getting as close to the Hyprland/Linux ricing experience as macOS allows.
 | walker / launcher | **Raycast** (`Option+Space`, set in-app) | — |
 | wallpaper | `legacy-mountains.png` (set by install) | `wallpapers/` |
 | (Touch Bar) | **BetterTouchTool** — live tappable workspaces | `btt/` |
+| libinput scroll | **LinearMouse** — mouse scroll speed/direction | `linearmouse/` |
+| wl-clipboard / cliphist | **Karabiner** F-keys + **Raycast** clipboard history | `karabiner/` |
+| xkill / `hyprctl kill` | **Hammerspoon** — click-to-kill (F16) | `hammerspoon/` |
 | starship prompt | **starship** | `starship/` |
 
 Theme: **Catppuccin Mocha**. Font: **JetBrainsMono Nerd Font**.
@@ -36,8 +39,11 @@ AeroSpace auto-starts JankyBorders and notifies SketchyBar of workspace changes.
 
 ```sh
 brew install stow sketchybar borders starship
-brew install --cask aerospace wezterm font-jetbrains-mono-nerd-font font-hack-nerd-font
-stow -t ~ aerospace sketchybar borders wezterm starship wallpapers
+brew install --cask aerospace wezterm linearmouse karabiner-elements hammerspoon font-jetbrains-mono-nerd-font font-hack-nerd-font
+mkdir -p ~/.hammerspoon   # so stow links init.lua, not the whole dir
+stow -t ~ aerospace sketchybar borders wezterm starship wallpapers linearmouse hammerspoon
+# Karabiner rewrites its own config, so it's copied (not stowed):
+cp karabiner/.config/karabiner/karabiner.json ~/.config/karabiner/karabiner.json
 echo 'eval "$(starship init zsh)"' >> ~/.zshrc
 brew services start sketchybar && open -a AeroSpace
 osascript -e 'tell application "System Events" to tell every desktop to set picture to "'"$HOME"'/.config/wallpapers/legacy-mountains.png"'
@@ -56,6 +62,8 @@ Modifier is **Alt (Option)** — Cmd collides with macOS app shortcuts.
 | `Alt+Shift+h/j/k/l` *or* `Alt+Shift+←/↓/↑/→` | Move window |
 | `Alt+1`…`0` | Switch to workspace 1–10 |
 | `Alt+Shift+1`…`0` | Move window to workspace |
+| numpad `1`…`0` | Switch to workspace 1–10 (bare keys; `0`→10) |
+| `Shift`+numpad `1`…`0` | Move window to workspace |
 | `Ctrl+Alt+←/→` *or* `Ctrl+Alt+h/l` | Previous / next workspace (wraps) |
 | `Alt+f` | Fullscreen |
 | `Alt+e` | Toggle split orientation |
@@ -65,9 +73,11 @@ Modifier is **Alt (Option)** — Cmd collides with macOS app shortcuts.
 | `Alt+Shift+c` | Reload AeroSpace config |
 | `Alt+Tab` | Last workspace |
 
-Apps auto-route to workspaces on launch (Chrome→1, VS Code→2, Slack→3,
-Notion→4, Music→5); Zoom floats. Edit/remove the `[[on-window-detected]]` blocks
-in `aerospace.toml` to change this.
+Apps auto-route to workspaces on launch (WezTerm→1, Docker→6, Claude→8,
+Slack→9, Chrome→10) and all but Docker also auto-start via
+`after-startup-command`; Zoom floats. VS Code is deliberately *not* routed —
+its "Reload Window" recreates the window and re-fires the rule, yanking it back.
+Edit/remove the `[[on-window-detected]]` blocks in `aerospace.toml` to change.
 
 ## Tuning
 
@@ -118,6 +128,42 @@ in `aerospace.toml` to change this.
   on the bar, and BTT has no flexible spacer, so the system controls come from the
   native Control Strip rather than custom widgets. Adjust pill width via
   `BTTTouchBarButtonWidth` in the script.
+- **Mouse (LinearMouse):** replaces Scroll Reverser. Config is the stowed
+  `linearmouse/.config/linearmouse/linearmouse.json`. For mice it sets a fixed
+  scroll `distance` (10 lines — kills macOS scroll acceleration so the wheel
+  isn't sluggish), reversed vertical scroll (traditional wheel direction), and
+  smoothed `easeInOut` scrolling (absorbs stray encoder ticks on cheap wheels).
+  The trackpad is untouched (keeps macOS natural scrolling). LinearMouse reloads
+  the file live, so tune `distance` up/down and feel it immediately. **Manual
+  step:** grant LinearMouse **Accessibility** permission or scrolling does
+  nothing. Note: editing settings in LinearMouse's *UI* can break the stow
+  symlink (it rewrites the file) — prefer editing the repo file, then re-stow.
+- **Copy / paste (Karabiner F-keys + Raycast):** macOS already shares one
+  pasteboard across all apps, so the fix is consistent *keys*, not clipboard
+  bridging. Karabiner maps `F13`→Copy (⌘C), `F14`→Paste (⌘V), and `F15`→Raycast
+  Clipboard History (via a deeplink `shell_command`, so no manual Raycast hotkey
+  needed). `F16` is left unmapped here — it passes through to Hammerspoon for
+  click-to-kill (see below). The config is **copied,
+  not stowed** (`karabiner.json` is rewritten by Karabiner on load, which would
+  clobber a symlink) — the repo file is source of truth; `install.sh` re-copies
+  it (backing up any existing one). **Manual steps (macOS won't script these):**
+  1. *Launch Karabiner-Elements once* — the driver toggle below doesn't exist
+     until the app requests it on first launch.
+  2. Approve its driver: **System Settings → General → Login Items & Extensions
+     → Driver Extensions → enable Karabiner-VirtualHIDDevice** (or click *Allow*
+     on the "System Extension Blocked" prompt / the banner in Privacy &
+     Security). Verify with `systemextensionsctl list` → `[activated enabled]`.
+  3. Grant **Input Monitoring** to Karabiner (System Settings → Privacy &
+     Security → Input Monitoring). The remaps do nothing until both are granted.
+- **Click-to-kill (Hammerspoon):** the macOS analog of `xkill` / `hyprctl kill`.
+  Press **`F16`** → a red banner appears → click any window to **force-quit**
+  (`SIGKILL`) its app; `Esc` cancels. Config is the stowed
+  `hammerspoon/.hammerspoon/init.lua` (Hammerspoon doesn't rewrite it, so stow is
+  safe). F16 is bound bare and left unmapped in Karabiner so it reaches
+  Hammerspoon. To soften it to a graceful quit, swap `app:kill9()` for
+  `app:kill()` in the init.lua; change the trigger via `KILL_HOTKEY_KEY`.
+  **Manual step:** grant Hammerspoon **Accessibility** permission (it needs it to
+  read window frames and tap the click) or kill mode does nothing.
 - **macOS defaults:** `install.sh` also tunes key repeat (+ disables
   press-and-hold so keys repeat for vim), makes the Dock reveal instantly,
   redirects screenshots to `~/Pictures/Screenshots` (the Desktop is hidden), and

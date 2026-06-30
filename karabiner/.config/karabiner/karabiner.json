@@ -1,0 +1,50 @@
+{
+  "global": {
+    "show_in_menu_bar": false
+  },
+  "profiles": [
+    {
+      "name": "Default profile",
+      "selected": true,
+      "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" },
+      "complex_modifications": {
+        "rules": [
+          {
+            "description": "F13 -> Copy (Cmd+C)",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": { "key_code": "f13" },
+                "to": [{ "key_code": "c", "modifiers": ["left_command"] }]
+              }
+            ]
+          },
+          {
+            "description": "F14 -> Paste (Cmd+V)",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": { "key_code": "f14" },
+                "to": [{ "key_code": "v", "modifiers": ["left_command"] }]
+              }
+            ]
+          },
+          {
+            "description": "F15 -> Raycast Clipboard History",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": { "key_code": "f15" },
+                "to": [
+                  {
+                    "shell_command": "open 'raycast://extensions/raycast/clipboard-history/clipboard-history'"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

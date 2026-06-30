@@ -4,7 +4,7 @@ set -euo pipefail
 # Bootstrap dotfiles-mac on a fresh machine. Idempotent — safe to re-run.
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES=(aerospace sketchybar borders wezterm starship wallpapers linearmouse)
+PACKAGES=(aerospace sketchybar borders wezterm starship wallpapers linearmouse hammerspoon)
 
 log() { echo "[install] $*"; }
 
@@ -23,7 +23,7 @@ export HOMEBREW_NO_REQUIRE_TAP_TRUST=1   # fallback if `brew trust` is unavailab
 
 # --- Dependencies ------------------------------------------------------------
 FORMULAE=(stow sketchybar starship borders)
-CASKS=(aerospace wezterm linearmouse font-jetbrains-mono-nerd-font font-hack-nerd-font)
+CASKS=(aerospace wezterm linearmouse karabiner-elements hammerspoon font-jetbrains-mono-nerd-font font-hack-nerd-font)
 
 for f in "${FORMULAE[@]}"; do
     if brew list --formula "$f" >/dev/null 2>&1; then
@@ -53,6 +53,9 @@ chmod +x "$DOTFILES_DIR"/sketchybar/.config/sketchybar/sketchybarrc \
 
 # --- Stow --------------------------------------------------------------------
 cd "$DOTFILES_DIR"
+# Pre-create ~/.hammerspoon so stow links just init.lua instead of folding the
+# whole dir into a symlink (keeps the dir writable for Hammerspoon's own files).
+mkdir -p "$HOME/.hammerspoon"
 log "stowing packages into $HOME: ${PACKAGES[*]}"
 stow --target="$HOME" --restow "${PACKAGES[@]}"
 
@@ -209,6 +212,39 @@ if [ -d "/Applications/LinearMouse.app" ]; then
     open -a LinearMouse 2>/dev/null || true
 fi
 
+# --- Karabiner-Elements: universal copy/paste keys ---------------------------
+# Maps the keyboard's F13->Copy (Cmd+C) and F14->Paste (Cmd+V) so copy/paste is
+# one consistent physical key everywhere (terminal, GUI, remote). F15->Raycast
+# Clipboard History via a deeplink. F16 is intentionally unmapped here so it
+# passes through to Hammerspoon (click-to-kill).
+# NOTE: this is COPIED, not stowed — Karabiner rewrites karabiner.json to
+# normalize it on load, which would clobber a stow symlink. The repo copy is the
+# source of truth; editing rules in Karabiner's UI will diverge until re-copied.
+# Karabiner also needs a driver-extension approval + Input Monitoring (see below).
+if [ -d "/Applications/Karabiner-Elements.app" ]; then
+    log "installing Karabiner copy/paste config"
+    mkdir -p "$HOME/.config/karabiner"
+    DEST="$HOME/.config/karabiner/karabiner.json"
+    if [ -f "$DEST" ] && ! cmp -s "$DOTFILES_DIR/karabiner/.config/karabiner/karabiner.json" "$DEST"; then
+        cp "$DEST" "$DEST.bak"   # preserve any existing/UI-made config
+        log "backed up existing karabiner.json -> karabiner.json.bak"
+    fi
+    cp "$DOTFILES_DIR/karabiner/.config/karabiner/karabiner.json" "$DEST"
+    open -a Karabiner-Elements 2>/dev/null || true
+fi
+
+# --- Hammerspoon: click-to-kill ----------------------------------------------
+# Hammerspoon runs the stowed ~/.hammerspoon/init.lua, which adds a click-to-kill
+# hotkey (F16 -> click a window to force-quit its app; the macOS xkill /
+# `hyprctl kill` analog). Register a login item and start it. NOTE: it
+# needs Accessibility permission to read windows and tap clicks (see below).
+if [ -d "/Applications/Hammerspoon.app" ]; then
+    log "registering Hammerspoon as a login item"
+    osascript -e 'tell application "System Events" to if not (exists login item "Hammerspoon") then make login item at end with properties {path:"/Applications/Hammerspoon.app", hidden:true}' 2>/dev/null \
+        || log "could not add Hammerspoon login item — enable 'Launch at login' in Hammerspoon"
+    open -a Hammerspoon 2>/dev/null || true
+fi
+
 # --- Touch Bar: BetterTouchTool live workspaces (Touch Bar Macs only) ---------
 # On Touch Bar MacBooks, BetterTouchTool shows tappable AeroSpace workspace pills
 # (active = mauve, tap = jump) on the left, with the system Control Strip
@@ -266,18 +302,30 @@ cat <<'EOF'
 
 [install] Done. Remaining manual steps (macOS won't let scripts do these):
 
-  1. Grant Accessibility permission to AeroSpace, LinearMouse (and
-     BetterTouchTool on Touch Bar Macs):
+  1. Grant Accessibility permission to AeroSpace, LinearMouse, Hammerspoon
+     (and BetterTouchTool on Touch Bar Macs):
        System Settings -> Privacy & Security -> Accessibility -> enable them
-     (AeroSpace's WM, LinearMouse's scrolling and BTT's Touch Bar won't run
-     until granted.)
+     (AeroSpace's WM, LinearMouse's scrolling, Hammerspoon's click-to-kill and
+     BTT's Touch Bar won't run until granted.)
 
-  2. (Touch Bar Macs) Activate your BetterTouchTool license (double-click the
+  2. Enable Karabiner-Elements (F13=copy, F14=paste, F15=clipboard history;
+     F16 is click-to-kill, handled by Hammerspoon). install.sh already launched
+     it so the driver toggle exists; now approve it:
+       a. Approve its driver: System Settings -> General -> Login Items &
+          Extensions -> Driver Extensions -> enable Karabiner-VirtualHIDDevice
+          (or click "Allow" on the System Extension Blocked prompt). Confirm
+          with: systemextensionsctl list  (look for "activated enabled").
+       b. Grant Input Monitoring: System Settings -> Privacy & Security ->
+          Input Monitoring -> enable Karabiner-Core-Service / karabiner_grabber.
+     The F-key remaps do nothing until both are granted. (F15 opens Raycast
+     Clipboard History via a deeplink — no Raycast hotkey setup needed.)
+
+  3. (Touch Bar Macs) Activate your BetterTouchTool license (double-click the
      .bttlicense file or use the activation link) — it runs in trial otherwise.
 
-  3. (Optional) Raycast Catppuccin Mocha theme — needs Raycast Pro to activate:
+  4. (Optional) Raycast Catppuccin Mocha theme — needs Raycast Pro to activate:
        https://themes.ray.so?version=1&name=Catppuccin%20Mocha&colors=%231e1e2e,%231e1e2e,%23cdd6f4,%236c7086,%237f849c,%23f38ba8,%23fab387,%23f9e2af,%23a6e3a1,%2389b4fa,%23b4befe,%23cba6f7&appearance=dark
 
-  4. Open a new terminal tab to pick up the starship prompt.
+  5. Open a new terminal tab to pick up the starship prompt.
 
 EOF
