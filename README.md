@@ -130,9 +130,14 @@ Edit/remove the `[[on-window-detected]]` blocks in `aerospace.toml` to change.
   `BTTTouchBarButtonWidth` in the script.
 - **Mouse (LinearMouse):** replaces Scroll Reverser. Config is the stowed
   `linearmouse/.config/linearmouse/linearmouse.json`. For mice it sets a fixed
-  scroll `distance` (10 lines — kills macOS scroll acceleration so the wheel
-  isn't sluggish), reversed vertical scroll (traditional wheel direction), and
-  smoothed `easeInOut` scrolling (absorbs stray encoder ticks on cheap wheels).
+  scroll `distance` (14 lines — kills macOS scroll acceleration so the wheel
+  isn't sluggish) and reversed vertical scroll (traditional wheel direction).
+  Smoothing is **off**: LinearMouse's smoothed easing carries momentum/inertia,
+  and on fast repeated ticks the curve overshoots and bounces — which on a
+  mechanical-encoder mouse (e.g. SteelSeries Aerox 5) reads as a jolt *backward*.
+  Disabling it gives crisp line-based scrolling with no overshoot; the fixed
+  `distance` already kills macOS acceleration without it. (If a residual jolt
+  remains with smoothing off, suspect encoder jitter — a hardware issue.)
   The trackpad is untouched (keeps macOS natural scrolling). LinearMouse reloads
   the file live, so tune `distance` up/down and feel it immediately. **Manual
   step:** grant LinearMouse **Accessibility** permission or scrolling does

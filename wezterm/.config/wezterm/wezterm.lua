@@ -30,6 +30,12 @@ config.tab_bar_at_bottom = true
 
 -- Scrollback & misc
 config.scrollback_lines = 10000
+-- Full-screen TUIs (vim, less, Claude Code) use the alternate screen buffer,
+-- where WezTerm turns one wheel tick into N arrow-key presses (default 3) and
+-- ignores LinearMouse's scroll `distance`. Match it to LinearMouse's mouse
+-- `distance` (14) so a wheel tick travels ~the same number of lines in the
+-- terminal as in GUI apps.
+config.alternate_buffer_wheel_scroll_speed = 14
 config.audible_bell = "Disabled"
 config.default_cursor_style = "BlinkingBlock"
 
