@@ -1,5 +1,8 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
+# node's cold start can exceed the 500ms default and trip a timeout warning
+command_timeout = 2000
+
 format = """
 [](red)\
 $os\
