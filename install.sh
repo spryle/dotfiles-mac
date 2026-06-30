@@ -4,7 +4,7 @@ set -euo pipefail
 # Bootstrap dotfiles-mac on a fresh machine. Idempotent — safe to re-run.
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES=(aerospace sketchybar borders wezterm starship wallpapers)
+PACKAGES=(aerospace sketchybar borders wezterm starship wallpapers linearmouse)
 
 log() { echo "[install] $*"; }
 
@@ -23,7 +23,7 @@ export HOMEBREW_NO_REQUIRE_TAP_TRUST=1   # fallback if `brew trust` is unavailab
 
 # --- Dependencies ------------------------------------------------------------
 FORMULAE=(stow sketchybar starship borders)
-CASKS=(aerospace wezterm font-jetbrains-mono-nerd-font font-hack-nerd-font)
+CASKS=(aerospace wezterm linearmouse font-jetbrains-mono-nerd-font font-hack-nerd-font)
 
 for f in "${FORMULAE[@]}"; do
     if brew list --formula "$f" >/dev/null 2>&1; then
@@ -192,6 +192,23 @@ if [ -d "/Applications/Raycast.app" ]; then
     open -a Raycast 2>/dev/null || true
 fi
 
+# --- LinearMouse -------------------------------------------------------------
+# LinearMouse handles mouse-wheel speed and per-device scroll direction (it
+# replaces Scroll Reverser). Config is the stowed ~/.config/linearmouse JSON:
+# mice get a fixed scroll distance (kills macOS scroll acceleration -> snappier)
+# and reversed vertical scroll (traditional wheel direction), while the trackpad
+# keeps macOS natural scrolling untouched. Register it as a login item and start
+# it. NOTE: it needs Accessibility permission to intercept scroll (see below).
+if [ -d "/Applications/LinearMouse.app" ]; then
+    log "registering LinearMouse as a login item"
+    osascript -e 'tell application "System Events" to if not (exists login item "LinearMouse") then make login item at end with properties {path:"/Applications/LinearMouse.app", hidden:true}' 2>/dev/null \
+        || log "could not add LinearMouse login item — enable 'Start at login' in LinearMouse"
+    # If Scroll Reverser is still around from a previous setup, retire it so the
+    # two don't double-reverse the mouse.
+    osascript -e 'tell application "System Events" to if (exists login item "Scroll Reverser") then delete login item "Scroll Reverser"' 2>/dev/null || true
+    open -a LinearMouse 2>/dev/null || true
+fi
+
 # --- Touch Bar: BetterTouchTool live workspaces (Touch Bar Macs only) ---------
 # On Touch Bar MacBooks, BetterTouchTool shows tappable AeroSpace workspace pills
 # (active = mauve, tap = jump) on the left, with the system Control Strip
@@ -249,10 +266,11 @@ cat <<'EOF'
 
 [install] Done. Remaining manual steps (macOS won't let scripts do these):
 
-  1. Grant Accessibility permission to AeroSpace (and BetterTouchTool on Touch
-     Bar Macs):
+  1. Grant Accessibility permission to AeroSpace, LinearMouse (and
+     BetterTouchTool on Touch Bar Macs):
        System Settings -> Privacy & Security -> Accessibility -> enable them
-     (AeroSpace's WM and BTT's Touch Bar won't run until granted.)
+     (AeroSpace's WM, LinearMouse's scrolling and BTT's Touch Bar won't run
+     until granted.)
 
   2. (Touch Bar Macs) Activate your BetterTouchTool license (double-click the
      .bttlicense file or use the activation link) — it runs in trial otherwise.
