@@ -286,6 +286,17 @@ if pgrep -x TouchBarServer >/dev/null 2>&1; then
     sleep 1; pkill -f BetterTouchTool 2>/dev/null || true; sleep 1
     defaults write com.hegenberg.BetterTouchTool BTTTouchBarVisible -bool true
     open -a BetterTouchTool 2>/dev/null || true
+
+    # BTT's widgets live in its DB, so they only appear while BTT is running.
+    # Register it as a login item (same pattern as Hammerspoon/LinearMouse) so
+    # the Touch Bar workspaces come back after a reboot, not just after install.
+    # NOTE: BTT manages launch-at-login via SMAppService, so the System Events
+    # login item only sticks once BTT is actually running — hence after open -a
+    # (plus a short wait for the app to come up).
+    sleep 2
+    log "registering BetterTouchTool as a login item"
+    osascript -e 'tell application "System Events" to if not (exists login item "BetterTouchTool") then make login item at end with properties {path:"/Applications/BetterTouchTool.app", hidden:true}' 2>/dev/null \
+        || log "could not add BetterTouchTool login item — enable 'Launch on startup' in BTT"
 else
     log "no Touch Bar detected — skipping BetterTouchTool setup"
 fi
