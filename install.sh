@@ -14,15 +14,18 @@ if ! command -v brew >/dev/null 2>&1; then
     exit 1
 fi
 
-# Taps for third-party formulae/casks (borders, aerospace).
+# Taps for third-party formulae/casks (borders, aerospace, sketchybar-toggle).
 log "tapping + trusting third-party taps"
 brew tap FelixKratz/formulae >/dev/null 2>&1 || true
 brew tap nikitabobko/tap     >/dev/null 2>&1 || true
-brew trust FelixKratz/formulae nikitabobko/tap >/dev/null 2>&1 || true
+brew tap malpern/tap         >/dev/null 2>&1 || true
+brew trust FelixKratz/formulae nikitabobko/tap malpern/tap >/dev/null 2>&1 || true
 export HOMEBREW_NO_REQUIRE_TAP_TRUST=1   # fallback if `brew trust` is unavailable
 
 # --- Dependencies ------------------------------------------------------------
-FORMULAE=(stow sketchybar starship borders)
+# sketchybar-toggle: hides SketchyBar while the native menu bar is revealed so
+# the two don't overlap on hover (autostarted from sketchybarrc).
+FORMULAE=(stow sketchybar starship borders malpern/tap/sketchybar-toggle)
 CASKS=(aerospace wezterm linearmouse karabiner-elements hammerspoon font-jetbrains-mono-nerd-font font-hack-nerd-font)
 
 for f in "${FORMULAE[@]}"; do

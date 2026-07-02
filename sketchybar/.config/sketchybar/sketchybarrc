@@ -10,15 +10,29 @@ export PATH="/opt/homebrew/bin:$PATH"
 source "$CONFIG_DIR/colors.sh"
 
 # ---- Bar --------------------------------------------------------------------
+# topmost=window is required by sketchybar-toggle (below): without it the bar
+# renders *behind* the native menu bar and would be invisible while shown.
 sketchybar --bar \
-  height=37 \
+  height=24 \
   position=top \
   sticky=on \
+  topmost=window \
   padding_left=8 \
   padding_right=8 \
   color=$BG \
   blur_radius=30 \
   shadow=off
+
+# ---- Native menu-bar coordination -------------------------------------------
+# The native macOS menu bar is auto-hidden (see install.sh) but still slides in
+# when the cursor hits the top edge — where it used to overlap and fight with
+# SketchyBar. sketchybar-toggle (malpern/tap) is a tiny daemon that polls the
+# cursor and hides SketchyBar the instant you enter the top zone, then slides it
+# back when you leave, so the two bars take turns instead of colliding.
+if command -v sketchybar-toggle >/dev/null 2>&1; then
+  pkill -x sketchybar-toggle 2>/dev/null
+  sketchybar-toggle &
+fi
 
 # ---- Defaults ---------------------------------------------------------------
 default=(
@@ -29,7 +43,7 @@ default=(
   label.font="$FONT:Semibold:13.0"
   label.color=$FG
   background.corner_radius=6
-  background.height=26
+  background.height=20
   icon.padding_left=8
   icon.padding_right=4
   label.padding_left=4
