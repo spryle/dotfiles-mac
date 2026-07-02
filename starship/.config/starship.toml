@@ -1,6 +1,6 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# node's cold start can exceed the 500ms default and trip a timeout warning
+# headroom for language-probe subprocesses that get paged in slowly under load
 command_timeout = 2000
 
 format = """
@@ -88,52 +88,72 @@ format = '[[ $symbol $branch ](fg:crust bg:yellow)]($style)'
 style = "bg:yellow"
 format = '[[($all_status$ahead_behind )](fg:crust bg:yellow)]($style)'
 
+# ── Language version modules ────────────────────────────────────────────────
+# Each of these forks a subprocess (`node --version`, `java -version`, …) on
+# every prompt in a matching directory. Too many at once = fork storm + the
+# occasional `command timed out` warning, so only nodejs and python are on.
+#
+# To toggle one: flip `disabled` (false = shown, true = skipped, no subprocess).
+# A `disabled = true` module never spawns its probe even though it's still
+# listed in the top `format` string — flip it to false whenever you start
+# working in that language.
+
 [nodejs]
+disabled = false
 symbol = ""
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [bun]
+disabled = true
 symbol = ""
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [c]
+disabled = true
 symbol = " "
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [rust]
+disabled = true
 symbol = ""
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [golang]
+disabled = true
 symbol = ""
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [php]
+disabled = true
 symbol = ""
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [java]
+disabled = true
 symbol = " "
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [kotlin]
+disabled = true
 symbol = ""
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [haskell]
+disabled = true
 symbol = ""
 style = "bg:green"
 format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [python]
+disabled = false
 symbol = ""
 style = "bg:green"
 format = '[[ $symbol( $version)(\(#$virtualenv\)) ](fg:crust bg:green)]($style)'
