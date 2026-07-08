@@ -65,4 +65,28 @@ end
 
 hs.hotkey.bind(KILL_HOTKEY_MODS, KILL_HOTKEY_KEY, startKillMode)
 
-hs.alert.show("Hammerspoon: click-to-kill ready (F16)")
+-- Focus follows mouse: the Hyprland/Omarchy behavior AeroSpace doesn't provide
+-- (it only has the reverse, mouse-follows-focus). Watch mouse movement and,
+-- once the pointer settles for FFM_DELAY, focus the window under it. The
+-- delayed timer restarts on every move event, so nothing focuses mid-flick and
+-- the (relatively expensive) window lookup runs once per pause instead of at
+-- 60Hz. hs.window:focus() also raises the window — invisible for tiled
+-- windows, and arguably what you want for floating ones.
+local FFM_DELAY = 0.05  -- seconds the pointer must rest before focus moves
+
+local ffmTimer = hs.timer.delayed.new(FFM_DELAY, function()
+  if killMode.active then return end
+  local win = windowAt(hs.mouse.absolutePosition())
+  local focused = hs.window.focusedWindow()
+  if win and (not focused or win:id() ~= focused:id()) then
+    win:focus()
+  end
+end)
+
+-- Global (not local) so the tap isn't garbage-collected and silently stopped.
+ffmTap = hs.eventtap.new({ hs.eventtap.event.types.mouseMoved }, function()
+  ffmTimer:start()
+  return false
+end):start()
+
+hs.alert.show("Hammerspoon: click-to-kill (F16) + focus-follows-mouse ready")
