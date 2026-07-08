@@ -128,6 +128,10 @@ Edit/remove the `[[on-window-detected]]` blocks in `aerospace.toml` to change.
   on the bar, and BTT has no flexible spacer, so the system controls come from the
   native Control Strip rather than custom widgets. Adjust pill width via
   `BTTTouchBarButtonWidth` in the script.
+  **If the Touch Bar wedges** (frozen pills, dead brightness/volume — a macOS
+  agent bug that hits after days of uptime; restarting BTT won't help): run
+  `btt/touchbar-reset.sh` to restart ControlStrip, or `--full` to also restart
+  TouchBarServer (sudo) and rebuild the whole bar.
 - **Mouse (LinearMouse):** replaces Scroll Reverser. Config is the stowed
   `linearmouse/.config/linearmouse/linearmouse.json`. For mice it sets a fixed
   scroll `distance` (14 lines — kills macOS scroll acceleration so the wheel
