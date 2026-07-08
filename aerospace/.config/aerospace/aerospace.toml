@@ -190,6 +190,14 @@ run = 'layout floating'
 if.app-id = 'us.zoom.xos'
 run = 'layout floating'
 
+# Granola — float all windows. The live-meeting overlay is a HUD meant to hover
+# over the call, so it must float; the main notes window shares the same app-id
+# and works fine floating too. Split into a title regex later if you want the
+# notes window tiled on a home workspace instead.
+[[on-window-detected]]
+if.app-id = 'com.granola.app'
+run = 'layout floating'
+
 # --- App → workspace routing --------------------------------------------------
 # Pin apps to a home workspace. AeroSpace re-fires on-window-detected every time
 # an app recreates its window, so the window snaps back to its assigned workspace
