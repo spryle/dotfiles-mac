@@ -74,40 +74,27 @@ hs.hotkey.bind(KILL_HOTKEY_MODS, KILL_HOTKEY_KEY, startKillMode)
 -- windows, and arguably what you want for floating ones.
 local FFM_DELAY = 0.05  -- seconds the pointer must rest before focus moves
 
--- Apps whose windows FFM must never focus. Browser extension popups (LastPass,
--- 1Password, toolbar dropdowns) are non-standard windows, so windowAt() skips
--- them and returns the standard browser window *behind* the popup. Focusing
--- that window blurs the popup, which dismisses on blur — so it vanishes the
--- instant you move the mouse toward it. Skipping browsers keeps the popup
--- focused (the cost: hover won't auto-focus browser windows; click to focus).
--- Matched on exact app name, so every Chromium channel/fork is listed.
-local FFM_SKIP_APPS = {
-  -- WebKit
-  ["Safari"] = true,
-  ["Safari Technology Preview"] = true,
-  -- Chrome (stable + channels)
-  ["Google Chrome"] = true,
-  ["Google Chrome Beta"] = true,
-  ["Google Chrome Dev"] = true,
-  ["Google Chrome Canary"] = true,
-  ["Chromium"] = true,
-  -- Brave
-  ["Brave Browser"] = true,
-  ["Brave Browser Beta"] = true,
-  ["Brave Browser Nightly"] = true,
-  -- Edge
-  ["Microsoft Edge"] = true,
-  ["Microsoft Edge Beta"] = true,
-  ["Microsoft Edge Dev"] = true,
-  ["Microsoft Edge Canary"] = true,
-  -- Other Chromium forks
-  ["Arc"] = true,
-  ["Dia"] = true,
-  ["Vivaldi"] = true,
-  ["Opera"] = true,
-  ["Opera GX"] = true,
-  ["Yandex"] = true,
-  ["Sidekick"] = true,
+-- FFM is restricted to terminals only (allowlist). Auto-focusing every window
+-- on hover caused problems elsewhere: browser extension popups (1Password,
+-- toolbar dropdowns) are non-standard windows, so windowAt() returns the
+-- browser window *behind* the popup — focusing it blurs the popup, which
+-- dismisses on blur, so it vanished the instant you moved toward it. Other GUI
+-- apps had their own hover-focus surprises. Terminals are the only place the
+-- Hyprland-style focus-follows-mouse actually earns its keep, so we only act on
+-- them; every other app now requires a click to focus (standard macOS).
+-- Matched on exact app name (hs.window:application():name()). Add your terminal
+-- here if it isn't listed.
+local FFM_ONLY_APPS = {
+  ["WezTerm"] = true,
+  ["iTerm2"] = true,
+  ["Terminal"] = true,   -- Apple Terminal
+  ["Alacritty"] = true,
+  ["kitty"] = true,
+  ["Ghostty"] = true,
+  ["Hyper"] = true,
+  ["Tabby"] = true,
+  ["Warp"] = true,
+  ["WarpPreview"] = true,
 }
 
 local ffmTimer = hs.timer.delayed.new(FFM_DELAY, function()
@@ -115,7 +102,7 @@ local ffmTimer = hs.timer.delayed.new(FFM_DELAY, function()
   local win = windowAt(hs.mouse.absolutePosition())
   if not win then return end
   local app = win:application()
-  if app and FFM_SKIP_APPS[app:name()] then return end
+  if not (app and FFM_ONLY_APPS[app:name()]) then return end
   local focused = hs.window.focusedWindow()
   if not focused or win:id() ~= focused:id() then
     win:focus()
