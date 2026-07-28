@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
-# Per-workspace indicator. Arg $1 = this item's workspace id.
+# Workspace indicator updater — runs ONCE per event (not once per item).
 #
-# Three visual states (Hyprland/Omarchy waybar behaviour):
+# Three visual states per workspace (Hyprland/Omarchy waybar behaviour):
 #   focused          -> solid accent pill, dark glyph
 #   occupied (has windows, not focused) -> visible, normal text colour
 #   empty + unfocused -> hidden entirely
 #
-# Runs on the aerospace_workspace_change trigger (instant focus highlight) and
-# on a short update_freq poll (catches windows opening/closing/moving).
+# Subscribed via the hidden `aerospace_listener` item to
+# aerospace_workspace_change (instant focus highlight) plus a slow routine
+# poll (catches windows opening/closing/moving). All 10 items are updated in
+# one batched `sketchybar --set ... --set ...` call: one IPC round-trip, one
+# redraw — this is what keeps workspace switching snappy. The old layout
+# (each item subscribed with its own script) spawned 10 shells and ~20
+# serialized `aerospace` CLI queries per switch, which is where the lag was.
 export PATH="/opt/homebrew/bin:$PATH"
 source "$(dirname "$0")/../colors.sh"
-
-SID="$1"
 
 # FOCUSED_WORKSPACE is set by the trigger; empty on poll/initial load, so fall
 # back to querying AeroSpace directly.
@@ -19,22 +22,23 @@ FOCUSED="${FOCUSED_WORKSPACE:-$(aerospace list-workspaces --focused)}"
 
 # Workspaces that currently contain at least one window.
 OCCUPIED="$(aerospace list-workspaces --monitor all --empty no)"
-is_occupied=0
-for w in $OCCUPIED; do
-  [ "$w" = "$SID" ] && is_occupied=1 && break
+
+args=()
+for sid in $(aerospace list-workspaces --all); do
+  if [ "$sid" = "$FOCUSED" ]; then
+    args+=(--set "space.$sid"
+      drawing=on
+      background.drawing=on
+      background.color="$ACCENT"
+      icon.color=0xff1e1e2e)
+  elif grep -qx "$sid" <<<"$OCCUPIED"; then
+    args+=(--set "space.$sid"
+      drawing=on
+      background.drawing=off
+      icon.color="$FG")
+  else
+    args+=(--set "space.$sid" drawing=off)
+  fi
 done
 
-if [ "$SID" = "$FOCUSED" ]; then
-  sketchybar --set "$NAME" \
-    drawing=on \
-    background.drawing=on \
-    background.color="$ACCENT" \
-    icon.color=0xff1e1e2e
-elif [ "$is_occupied" = 1 ]; then
-  sketchybar --set "$NAME" \
-    drawing=on \
-    background.drawing=off \
-    icon.color="$FG"
-else
-  sketchybar --set "$NAME" drawing=off
-fi
+sketchybar "${args[@]}"
