@@ -7,7 +7,7 @@
       },
       "scrolling": {
         "reverse": { "vertical": true },
-        "distance": { "vertical": 14, "horizontal": 14 },
+        "distance": { "vertical": 8, "horizontal": 8 },
         "smoothed": { "enabled": false }
       }
     }
