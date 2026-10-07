@@ -92,6 +92,13 @@ Edit/remove the `[[on-window-detected]]` blocks in `aerospace.toml` to change.
   `sketchybar/.config/sketchybar/colors.sh`, which every plugin sources — colours
   set inside a plugin are invisible (`0x0`) unless that file is sourced, because
   the SketchyBar daemon doesn't inherit `export`s from `sketchybarrc`.
+- **SketchyBar font looks like Helvetica / an icon renders as `?` after a macOS
+  update:** the font files are fine — SketchyBar just started (RunAtLoad at
+  login) before macOS had re-registered `~/Library/Fonts` post-update, so its
+  one-time family lookup fell back to Helvetica. `brew services restart
+  sketchybar` (or `sketchybar --reload`) fixes it. Diagnose with
+  `lsof -p $(pgrep -x sketchybar) | grep -E '\.(ttf|otf|ttc)'` — you should see
+  `JetBrainsMonoNerdFont-*.ttf`, not `Helvetica.ttc`.
 - **Workspace dots:** the bar shows only workspaces that are focused or contain
   windows; empty ones are hidden (Hyprland-style). Logic in
   `sketchybar/.config/sketchybar/plugins/aerospace.sh`.
