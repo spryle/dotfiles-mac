@@ -41,4 +41,8 @@ for sid in $(aerospace list-workspaces --all); do
   fi
 done
 
+# If AeroSpace was unreachable (e.g. its /tmp socket got swept), args is empty
+# and a bare `sketchybar` would try to start a second daemon every poll.
+[ ${#args[@]} -eq 0 ] && exit 0
+
 sketchybar "${args[@]}"
