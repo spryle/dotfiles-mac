@@ -79,6 +79,17 @@ Slack→9, Chrome→10) and all but Docker also auto-start via
 its "Reload Window" recreates the window and re-fires the rule, yanking it back.
 Edit/remove the `[[on-window-detected]]` blocks in `aerospace.toml` to change.
 
+Unplugging an external display used to scatter windows onto the focused
+workspace (macOS dumps the display's windows onto the built-in screen, AeroSpace
+re-detects them, and only routed apps snap home). Two things guard against it:
+`install.sh` turns off *Displays have separate Spaces* (AeroSpace recommends it;
+applies at next login), and a Hammerspoon watcher
+(`hammerspoon/.hammerspoon/aerospace_guard.lua`) snapshots window→workspace
+every 10s and puts strays back a few seconds after the display layout settles.
+The same module touches AeroSpace's `/tmp` socket every 6h so macOS's 3-day
+`/tmp` sweep can't delete it — once it's gone the `aerospace` CLI, SketchyBar's
+workspace dots and the guard all go blind until AeroSpace is restarted.
+
 ## Tuning
 
 - **Bar overlaps windows / gap at top:** adjust `gaps.outer.top` in
@@ -180,7 +191,10 @@ Edit/remove the `[[on-window-detected]]` blocks in `aerospace.toml` to change.
   `app:kill()` in the init.lua; change the trigger via `KILL_HOTKEY_KEY`.
   **Manual step:** grant Hammerspoon **Accessibility** permission (it needs it to
   read window frames and tap the click) or kill mode does nothing.
-- **macOS defaults:** `install.sh` also tunes key repeat (+ disables
+- **macOS defaults:** `install.sh` also turns off *Displays have separate Spaces*
+  (one Space across monitors — see the AeroSpace section; revert with
+  `defaults write com.apple.spaces spans-displays -bool false` + logout),
+  tunes key repeat (+ disables
   press-and-hold so keys repeat for vim), makes the Dock reveal instantly,
   redirects screenshots to `~/Pictures/Screenshots` (the Desktop is hidden), and
   applies Finder tweaks + Dark mode. Key-repeat changes fully apply to apps

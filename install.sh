@@ -74,6 +74,13 @@ if ! grep -qF "$ZSHRC_MARKER" "$HOME/.zshrc" 2>/dev/null; then
 fi
 
 # --- macOS tweaks ------------------------------------------------------------
+# One Space spanning all displays (turns OFF "Displays have separate Spaces").
+# The AeroSpace guide recommends this for stability, and it stops macOS folding
+# an unplugged display's Space into the active one, which is what scatters
+# windows across workspaces on undock. Takes effect at next login.
+log "disabling Displays-have-separate-Spaces (applies at next login)"
+defaults write com.apple.spaces spans-displays -bool true
+
 # Auto-hide the native menu bar so SketchyBar is the only top bar (Omarchy look).
 # `defaults write _HIHideMenuBar` alone only applies at next login (WindowServer
 # reads it then), which leaves a reserved gap above SketchyBar until you restart.

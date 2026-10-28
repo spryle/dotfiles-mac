@@ -5,6 +5,14 @@
 # every app shortcut (Cmd+1, Cmd+W, ...), so the WM modifier here is ALT (Option).
 # To switch to Cmd: find/replace 'alt-' -> 'cmd-' below (expect conflicts).
 
+# Config schema version. v2 stops inferring persistent workspaces from the key
+# bindings and wants them listed explicitly (below). AeroSpace warns on v1.
+config-version = 2
+
+# Workspaces that exist even when empty. SketchyBar iterates `list-workspaces
+# --all`, so keep this in sync with the alt-N / keypad bindings further down.
+persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+
 # Start AeroSpace at login (registers a macOS login item).
 start-at-login = true
 

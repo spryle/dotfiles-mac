@@ -65,4 +65,12 @@ end
 
 hs.hotkey.bind(KILL_HOTKEY_MODS, KILL_HOTKEY_KEY, startKillMode)
 
+-- Expose the message port so the `hs` CLI (brew) can talk to this instance:
+--   hs -c 'hs.reload()'
+require("hs.ipc")
+
 hs.alert.show("Hammerspoon: click-to-kill (F16) ready")
+
+-- AeroSpace layout guard: puts windows back on their workspaces after a display
+-- is unplugged, and keeps the aerospace CLI socket alive. See aerospace_guard.lua.
+require("aerospace_guard")
